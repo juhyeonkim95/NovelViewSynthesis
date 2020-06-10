@@ -1,5 +1,5 @@
 import numpy as np
-from data_container import DataLoader, SceneDataLoader
+from data_container import DataLoader, SceneDataLoader, ObjectDataLoaderNumpy
 from PIL import Image
 import keras.backend as K
 import tensorflow as tf
@@ -24,17 +24,22 @@ def save_pred_images(images, file_path):
     new_im.save("%s.png" % (file_path))
 
 
-def test_few_models_and_export_image(model, data: DataLoader, iteration, folder_name, test_n=5,
+def test_few_models_and_export_image(model, data: DataLoader, file_name, folder_name, test_n=5,
                                      single_model=False):
     input_image_original, target_image_original, poseinfo = data.get_batched_data(test_n, single_model=single_model)
     poseinfo_processed = model.process_pose_info(data, poseinfo)
     pred_images = model.get_predicted_image((input_image_original, poseinfo_processed))
     images = align_input_output_image(input_image_original, target_image_original, pred_images)
-    save_pred_images(images, "%s/%d" % (folder_name, iteration))
+    save_pred_images(images, "%s/%s" % (folder_name, file_name))
+
+    return images
+
+
 
 
 def ssim_custom(y_true, y_pred):
     return tf.image.ssim(y_pred, y_true, max_val=1.0, filter_sigma=0.5)
+
 def mae_custom(y_true, y_pred):
     return K.mean(K.abs(y_true - y_pred))
 
@@ -96,10 +101,9 @@ def mae_custom(y_true, y_pred):
 def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
     mae = 0
     ssim = 0
-
     count = 0
     while count < N:
-        input_image_original, target_image_original, pose_info = data.get_batched_data(batch_size=batch_size)
+        input_image_original, target_image_original, pose_info = data.get_batched_data(batch_size=batch_size, is_train=False)
         pose_info_per_model = model.process_pose_info(data, pose_info)
         metrics = model.evaluate(input_image_original, target_image_original, pose_info_per_model)
         mae += metrics[1] * batch_size
@@ -110,13 +114,46 @@ def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
     ssim /= count
     return mae, ssim
 
+def test_for_all_scenes(data: SceneDataLoader, model, batch_size=16):
+    scene_N = len(data.scene_list)
+    difference_N = 2 * data.max_frame_difference + 1
+    absolute_errors = np.zeros((difference_N, ), dtype=np.float32)
+    ssim_errors = np.zeros((difference_N, ), dtype=np.float32)
 
-def test_for_all_models_thorough_per_model2(data: DataLoader, model, batch_size=50):
+    for difference in range(difference_N):
+        for i in range(len(data.scene_list)):
+            scene_id = data.scene_list[i]
+            index = 0
+            N = len(data.test_ids[scene_id])
+            while index < N:
+                M = min(index + batch_size, N)
+                input_image_original, target_image_original, pose_info = data.get_batched_data_i_j(
+                    scene_id, difference - data.max_frame_difference, index, M)
+                pose_info_per_model = model.process_pose_info(data, pose_info)
+                metrics = model.evaluate(input_image_original, target_image_original, pose_info_per_model)
+                absolute_errors[difference] += metrics[1] * (M - index)
+                ssim_errors[difference] += metrics[2] * (M - index)
+                index += batch_size
+
+    total_N = 0
+    for scene_id in data.scene_list:
+        total_N += len(data.test_ids[scene_id])
+
+    absolute_errors /= total_N
+    ssim_errors /= total_N
+
+    absolute_errors_avg = np.mean(absolute_errors)
+    ssim_errors_avg = np.mean(ssim_errors)
+
+    return absolute_errors_avg, ssim_errors_avg, absolute_errors, ssim_errors
+
+
+def test_for_all_models_thorough_per_model2(data: ObjectDataLoaderNumpy, model, batch_size=50):
 
     absolute_errors = np.zeros((18, 18))
     ssim_errors = np.zeros((18, 18))
 
-    N = len(data.model_list)
+    N = data.n_models
     for i in range(18):
         for j in range(18):
             print(i, j)
@@ -132,9 +169,22 @@ def test_for_all_models_thorough_per_model2(data: DataLoader, model, batch_size=
 
     absolute_errors /= N
     ssim_errors /= N
-    mae = np.mean(absolute_errors)
-    ssim = np.mean(ssim_errors)
-    return mae, ssim, absolute_errors, ssim_errors
+
+    absolute_errors2 = np.zeros((18, ), dtype=np.float32)
+    ssim_errors2 = np.zeros((18, ), dtype=np.float32)
+
+    for i in range(18):
+        for j in range(18):
+            index = (18 + j - i) % 18
+            absolute_errors2[index] += absolute_errors[i, j]
+            ssim_errors2[index] += ssim_errors[i, j]
+
+    absolute_errors2 = absolute_errors2 / 18
+    ssim_errors2 = ssim_errors2 / 18
+
+    mae = np.mean(absolute_errors2)
+    ssim = np.mean(ssim_errors2)
+    return mae, ssim, absolute_errors2, ssim_errors2
 
 
 def test_for_all_models_thorough_per_model(data: DataLoader, model):
@@ -310,43 +360,44 @@ def put_image_in(large_image, image, x, y, size):
 def normalize_image(x):
     return (x - x.min()) / (x.max() - x.min())
 
-def calculate_encoder_decoder_similarity(data: DataLoader, model, model_info=None):
-    if model_info is not None:
-        lst1, lst2, lst3 = zip(*model_info)
-        test_n = len(lst1)
-        input_image_original, target_image_original, poseinfo = data.get_batched_data_from_info(lst1,lst2,lst3)
-    else:
-        input_image_original, target_image_original, poseinfo = data.get_batched_data(1, single_model=False)
+
+def calculate_encoder_decoder_similarity(test_data, model, model_info=None):
+    input_image_original, target_image_original, processed_pose_info = test_data
+    # if model_info is not None:
+    #     lst1, lst2, lst3 = zip(*model_info)
+    #     test_n = len(lst1)
+    #     input_image_original, target_image_original, poseinfo = data.get_batched_data_from_info(lst1,lst2,lst3)
+    # else:
+    #     input_image_original, target_image_original, poseinfo = data.get_batched_data(1, single_model=False)
     s = K.get_session()
     ks = [16, 32, 64, 128]
     w = 4
     h = 4
-    plt.figure()
-    plt.subplot(1, 3, 1)
-    plt.imshow(input_image_original[0])
-    plt.subplot(1, 3, 2)
-    plt.imshow(target_image_original[0])
-    plt.subplot(1, 3, 3)
-    per_model_poseinfo = model.process_pose_info(data, poseinfo)
-    pred_images = model.get_predicted_image((input_image_original, per_model_poseinfo))
-    plt.imshow(pred_images[0])
+    # plt.figure()
+    # plt.subplot(1, 3, 1)
+    # plt.imshow(input_image_original[0])
+    # plt.subplot(1, 3, 2)
+    # plt.imshow(target_image_original[0])
+    # plt.subplot(1, 3, 3)
+    pred_images = model.get_predicted_image((input_image_original, processed_pose_info))
+    #plt.imshow(pred_images[0])
 
     N = 128
     output_images = np.zeros((N * len(ks), N * 3, 1), dtype=np.float32)
 
-    if 'zhou' in model.name:
-        flow = s.run(model.pred_flow,
-                     feed_dict={
-                         model.model.input[0]: input_image_original,
-                         model.model.input[1]: per_model_poseinfo
-                     })
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(flow[0,:,:,0])
-        plt.subplot(1, 2, 2)
-        plt.imshow(flow[0,:,:,1])
+    # if 'zhou' in model.name:
+    #     flow = s.run(model.pred_flow,
+    #                  feed_dict={
+    #                      model.model.input[0]: input_image_original,
+    #                      model.model.input[1]: processed_pose_info
+    #                  })
+    #     plt.figure()
+    #     plt.subplot(1, 2, 1)
+    #     plt.imshow(flow[0,:,:,0])
+    #     plt.subplot(1, 2, 2)
+    #     plt.imshow(flow[0,:,:,1])
 
-    plt.rcParams["figure.figsize"] = (8, 8)
+    # plt.rcParams["figure.figsize"] = (8, 8)
     for k_i, k in enumerate(reversed(ks)):
         x_d = model.decoder_original_features[k]
         x_e = model.decoder_rearranged_features[k]
@@ -354,7 +405,7 @@ def calculate_encoder_decoder_similarity(data: DataLoader, model, model_info=Non
         decoder_features, rearranged_encoder_features, encoder_features = s.run([x_d, x_e, x_e_0],
                              feed_dict={
                                  model.model.input[0]: input_image_original,
-                                 model.model.input[1]: per_model_poseinfo
+                                 model.model.input[1]: processed_pose_info
                              })
         decoder_features = decoder_features[0]
         rearranged_encoder_features = rearranged_encoder_features[0]
@@ -392,22 +443,25 @@ def calculate_encoder_decoder_similarity(data: DataLoader, model, model_info=Non
         put_image_in(output_images, mean_rearranged_encoder_features, k_i, 1, N)
         put_image_in(output_images, mean_decoder_features, k_i, 2, N)
 
-        plt.figure()
-        plt.subplot(1, 3, 1)
-        plt.imshow(mean_decoder_features[:,:,0])
-        plt.subplot(1, 3, 2)
-        plt.imshow(mean_rearranged_encoder_features[:,:,0])
-        plt.subplot(1, 3, 3)
-        plt.imshow(encoder_features[:,:,0])
+        # plt.figure()
+        # plt.subplot(1, 3, 1)
+        # plt.imshow(mean_decoder_features[:,:,0])
+        # plt.subplot(1, 3, 2)
+        # plt.imshow(mean_rearranged_encoder_features[:,:,0])
+        # plt.subplot(1, 3, 3)
+        # plt.imshow(encoder_features[:,:,0])
 
-
-        A = tf.convert_to_tensor(mean_decoder_features)
-        B = tf.convert_to_tensor(mean_rearranged_encoder_features)
-        ssim_value = K.eval(tf.image.ssim(A, B, max_val=1))
-        print(k, ssim_value)
-
-        l1 = K.eval(K.mean(K.abs(A-B)))
-        print(k, l1)
+        # A = tf.convert_to_tensor(mean_decoder_features)
+        # B = tf.convert_to_tensor(mean_rearranged_encoder_features)
+        # ssim_value = K.eval(tf.image.ssim(A, B, max_val=1))
+        # print(k, ssim_value)
+        #
+        # l1 = K.eval(K.mean(K.abs(A-B)))
+        # print(k, l1)
+    output_images = output_images[:,:,0]
+    plt.figure()
+    plt.imshow(output_images)
+    plt.show()
     return output_images
 
 def calculate_encoder_decoder_similarity2(data: DataLoader, model, test_n=10):

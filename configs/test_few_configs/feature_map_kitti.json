@@ -1,0 +1,19 @@
+{
+  "dataset": "kitti",
+  "dataset_format": "npy",
+  "is_pose_matrix": false,
+  "available_gpu_ids": [3, 5],
+  "multiprocess_max": 2,
+  "image_size": 256,
+  "result_export_folder": "test_result_images/feature_map_kitti",
+  "target_scene_infos_commented" : [
+    ["04",233,236]
+  ],
+  "model_list": [
+    {"model_type": "t", "attention_strategy":"h_attn", "parent_folder": "model_data/pixel_generation_kitti"},
+    {"model_type": "z", "attention_strategy":"h_attn", "parent_folder": "model_data/appearance_flow_kitti"}
+  ],
+  "model_list_commented": [
+
+  ]
+}

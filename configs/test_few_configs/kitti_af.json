@@ -1,0 +1,39 @@
+{
+  "dataset": "kitti",
+  "dataset_format": "npy",
+  "is_pose_matrix": false,
+  "available_gpu_ids": [3, 3, 3, 5, 5],
+  "multiprocess_max": 5,
+  "image_size": 256,
+  "parent_folder": "model_data/appearance_flow_kitti",
+  "result_export_folder": "test_result_images/appearance_flow_kitti",
+  "target_scene_n" : 5,
+  "target_scene_infos" : [
+    ["06",642,640],
+    ["03",687,685],
+    ["05",970,977],
+    ["05",2273,2271],
+    ["03",536,528]
+  ],
+  "model_list": [
+    {"model_type": "z", "attention_strategy":"no"},
+    {"model_type": "z", "attention_strategy":"u_net"},
+    {"model_type": "z", "attention_strategy":"u_attn"},
+    {"model_type": "z", "attention_strategy":"h_attn"},
+
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_net","32":"u_net","64": "u_net"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_net","32":"u_net"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_net"}},
+
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_attn","32":"u_attn","64": "u_attn"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_attn","32":"u_attn"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"u_attn"}},
+
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"h_attn","32":"h_attn","64": "h_attn"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"h_attn","32":"h_attn"}},
+    {"model_type": "z", "attention_strategy":"mixed","attention_strategy_details":{"16":"h_attn"}}
+  ],
+  "model_list_commented": [
+
+  ]
+}

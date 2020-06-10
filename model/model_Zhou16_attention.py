@@ -10,7 +10,7 @@ from ops import BilinearSamplingLayer
 
 class ModelZhou16Attention(ModelInterface):
     def __init__(self, image_size=256, attention_strategy='cr_attn', attention_strategy_details=None,
-                 mix_concat = 'concat', k=8, additional_name=None, **kwargs):
+                 mix_concat = 'concat', k=2, additional_name=None, pose_input_size=None, **kwargs):
         super().__init__("zhou16attention", image_size)
         self.pixel_normalizer = lambda x: (x - 0.5) * 2
         self.pixel_normalizer_reverse = lambda x: x / 2 + 0.5
@@ -25,8 +25,15 @@ class ModelZhou16Attention(ModelInterface):
             self.name = "%s_%s_%d" % (self.name, self.mix_concat, self.k)
 
         if attention_strategy_details is not None:
-            for k in sorted(attention_strategy_details.keys()):
-                self.name = "%s_%d_%s" % (self.name, k, attention_strategy_details[k])
+            if type(list(attention_strategy_details.keys())[0]) == str:
+                attention_strategy_details_new = {}
+                for k, v in attention_strategy_details.items():
+                    attention_strategy_details_new[int(k)] = v
+                self.attention_strategy_details = attention_strategy_details_new
+
+            for k in sorted(self.attention_strategy_details.keys()):
+                self.name = "%s_%d_%s" % (self.name, k, self.attention_strategy_details[k])
+
         self.u_value = kwargs.get('u_value', None)
 
         print("u_value", self.u_value)
@@ -35,6 +42,8 @@ class ModelZhou16Attention(ModelInterface):
 
         if additional_name is not None:
             self.name = "%s_%s" % (self.name, additional_name)
+
+        self.pose_input_size = pose_input_size if pose_input_size is not None else 18
 
     def build_model(self):
         image_size = self.image_size
@@ -58,7 +67,7 @@ class ModelZhou16Attention(ModelInterface):
         x = Dense(hidden_layer_size, activation=activation)(x)
         x = Dense(hidden_layer_size, activation=activation)(x)
 
-        viewpoint_input = Input(shape=(18, ), name='viewpoint_input')
+        viewpoint_input = Input(shape=(self.pose_input_size, ), name='viewpoint_input')
 
         v = Dense(128, activation=activation)(viewpoint_input)
         v = Dense(256, activation=activation)(v)

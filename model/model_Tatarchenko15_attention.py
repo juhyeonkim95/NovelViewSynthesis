@@ -11,7 +11,7 @@ from ops import BilinearSamplingLayer
 
 class ModelTatarchenko15Attention(ModelInterface):
     def __init__(self, image_size=256, attention_strategy='cr_attn',
-                 attention_strategy_details=None, mix_concat='concat', k=8, additional_name=None, as_flow=False, pose_input_size=5):
+                 attention_strategy_details=None, mix_concat='concat', k=2, additional_name=None, as_flow=False, pose_input_size=5):
         super().__init__("tatarchenko15attention", image_size)
 
         self.pixel_normalizer = lambda x: (x - 0.5) * 1.5
@@ -32,10 +32,10 @@ class ModelTatarchenko15Attention(ModelInterface):
                 attention_strategy_details_new = {}
                 for k, v in attention_strategy_details.items():
                     attention_strategy_details_new[int(k)] = v
-                attention_strategy_details = attention_strategy_details_new
+                self.attention_strategy_details = attention_strategy_details_new
 
-            for k in sorted(attention_strategy_details.keys()):
-                self.name = "%s_%d_%s" % (self.name, k, attention_strategy_details[k])
+            for k in sorted(self.attention_strategy_details.keys()):
+                self.name = "%s_%d_%s" % (self.name, k, self.attention_strategy_details[k])
 
         if self.as_flow:
             self.name = self.name + "_as_flow"

@@ -70,14 +70,14 @@ class ModelInterface:
         f_test = None
 
         for i in range(max_iter):
-            source_images, target_images, pose_info = data.get_batched_data(batch_size, single_model=single_model)
+            source_images, target_images, pose_info = data.get_batched_data(batch_size, single_model=single_model, is_train=True)
             target_view = self.process_pose_info(data, pose_info)
             loss_info = self.model.train_on_batch([source_images, target_view], target_images)
 
             if i % export_image_per == 0:
                 if not os.path.exists(folder_name):
                     os.makedirs(folder_name)
-                test_few_models_and_export_image(self, data, i, folder_name, test_n=5, single_model=False)
+                test_few_models_and_export_image(self, data, str(i), folder_name, test_n=5, single_model=False)
 
             elapsed_time = time.time() - started_time
             if i % 100 == 0:

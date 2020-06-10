@@ -1,0 +1,22 @@
+{
+  "max_iterate": 100000,
+  "batch_size": 16,
+  "dataset": "kitti",
+  "dataset_format": "npy",
+  "is_pose_matrix": false,
+  "lr": 0.00001,
+  "export_image_per": 10000,
+  "available_gpu_ids": [3],
+  "multiprocess_max": 1,
+  "image_size": 256,
+  "parent_folder": "model_data/pixel_generation_kitti2",
+  "model_list": [
+    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":"cr","32":"cr","64": "cr"}}
+  ],
+  "model_list_commented": [
+    {"model_type": "t", "attention_strategy":"no"},
+    {"model_type": "t", "attention_strategy":"u_net"},
+    {"model_type": "t", "attention_strategy":"u_attn"},
+    {"model_type": "t", "attention_strategy":"h_attn"}
+  ]
+}

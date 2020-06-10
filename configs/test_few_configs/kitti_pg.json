@@ -1,22 +1,28 @@
 {
-  "max_iter": 20000,
-  "batch_size": 16,
   "dataset": "kitti",
   "dataset_format": "npy",
   "is_pose_matrix": false,
-  "available_gpu_ids": [0, 3],
-  "multiprocess_max": 2,
+  "available_gpu_ids": [3, 3, 5],
+  "multiprocess_max": 3,
   "image_size": 256,
   "parent_folder": "model_data/pixel_generation_kitti",
-  "result_export_folder": "test_result/pixel_generation_kitti",
-
+  "result_export_folder": "test_result_images/pixel_generation_kitti",
+  "target_scene_n" : 5,
+  "target_scene_infos" : [
+    ["06",642,640],
+    ["03",687,685],
+    ["05",970,977],
+    ["05",2273,2271],
+    ["03",536,528]
+  ],
   "model_list": [
     {"model_type": "t", "attention_strategy":"no"},
     {"model_type": "t", "attention_strategy":"u_net"},
     {"model_type": "t", "attention_strategy":"u_attn"},
+    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":"cr","32":"cr","64": "cr"}},
     {"model_type": "t", "attention_strategy":"h_attn"}
   ],
   "model_list_commented": [
-    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":":cr","32":"cr","64": "cr"}}
+
   ]
 }
