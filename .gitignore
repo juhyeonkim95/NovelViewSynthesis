@@ -1,1 +1,4 @@
+configs/test_configs
+configs/test_few_configs
+configs/train_configs
 .idea
