@@ -40,63 +40,10 @@ def test_few_models_and_export_image(model, data: DataLoader, file_name, folder_
 def ssim_custom(y_true, y_pred):
     return tf.image.ssim(y_pred, y_true, max_val=1.0, filter_sigma=0.5)
 
+
 def mae_custom(y_true, y_pred):
     return K.mean(K.abs(y_true - y_pred))
 
-# def ssim_custom(y_true, y_pred):
-#     result = tf.image.ssim(y_pred, y_true, max_val=1.0, filter_sigma=0.5)
-#     result = K.print_tensor(result, message='losses_ssim')
-#     return result
-#
-#
-# def mae_custom(y_true, y_pred):
-#     result = mean_absolute_error(y_true, y_pred)
-#     result = K.print_tensor(result, message='losses_l1')
-#     return result
-#
-# def test_for_all_models_thorough_per_model2(data: DataContainer, model):
-#     #absolute_errors = np.zeros((len(data.model_list), 18, 18))
-#     #ssim_errors = np.zeros((len(data.model_list), 18, 18))
-#
-#     absolute_errors = np.zeros((18, 18))
-#     ssim_errors = np.zeros((18, 18))
-#
-#     N = len(data.model_list)
-#
-#     for i in range(18):
-#         for j in range(18):
-#             index = 0
-#             batch_size = 32
-#             while index < N:
-#                 M = min(index + batch_size)
-#                 input_image_original, target_image_original, pose_info = data.get_batched_data_i_j(i, j, index, M)
-#                 pose_info_per_model = model.process_pose_info(data, pose_info)
-#                 metrics = model.evaluate([input_image_original, pose_info], target_image_original, verbose=False)
-#                 absolute_errors[i][j] += metrics[1] * (M - index)
-#                 ssim_errors[i][j] += metrics[2] * (M - index)
-#
-#     absolute_errors /= N
-#     ssim_errors /= N
-#
-#     #
-#     # for k, model_name in enumerate(data.model_list):
-#     #     print(model_name)
-#     #     for m in range(18):
-#     #         input_image_original, target_image_original, pose_info = data.get_batched_data_single(start_angle=m, model_name=model_name)
-#     #
-#     #         # metrics = ms[i].evaluate([input_image_original, pose_info], target_image_original, verbose=False)
-#     #         pose_info_per_model = model.process_pose_info(data, pose_info)
-#     #
-#     #         for j in range(18):
-#     #             metrics = model.evaluate(input_image_original[j:j+1], target_image_original[j:j+1], pose_info_per_model[j:j+1])
-#     #
-#     #             absolute_errors[k][m][j] = metrics[1]
-#     #             ssim_errors[k][m][j] = metrics[2]
-#
-#     mae = np.mean(absolute_errors)
-#     ssim = np.mean(ssim_errors)
-#
-#     return mae, ssim
 
 def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
     mae = 0
@@ -113,6 +60,7 @@ def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
     mae /= count
     ssim /= count
     return mae, ssim
+
 
 def test_for_all_scenes(data: SceneDataLoader, model, batch_size=16):
     scene_N = len(data.scene_list)
@@ -211,87 +159,6 @@ from matplotlib import pyplot as plt
 from skimage.transform import resize
 
 
-# def show_feature_map(data: DataContainer, model, test_n=5):
-#     input_image_original, target_image_original, poseinfo = data.get_batched_data(1, single_model=False)
-#     pred_images_list = []
-#     errors = []
-#     from keras.losses import mean_squared_error
-#     y_true = K.variable(target_image_original)
-#     attention_maps = {}
-#     feature_maps = {}
-#
-#     s = K.get_session()
-#     #tf.enable_eager_execution()
-#     ks = [16, 32, 64, 128]
-#     w = 4
-#     h = 4
-#     plt.figure()
-#     plt.subplot(1, 3, 1)
-#     plt.imshow(input_image_original[0])
-#     plt.subplot(1, 3, 2)
-#     plt.imshow(target_image_original[0])
-#     plt.subplot(1, 3, 3)
-#     per_model_poseinfo = model.process_pose_info(data, poseinfo)
-#     pred_images = model.get_predicted_image((input_image_original, per_model_poseinfo))
-#     plt.imshow(pred_images[0])
-#
-#     per_model_poseinfo = model.process_pose_info(data, poseinfo)
-#     flow = s.run(model.pred_flow,
-#                  feed_dict={
-#                      model.model.input[0]: input_image_original,
-#                      model.model.input[1]: per_model_poseinfo
-#                  })
-#     plt.figure()
-#     plt.subplot(1, 2, 1)
-#     plt.imshow(flow[0,:,:,0])
-#     plt.subplot(1, 2, 2)
-#     plt.imshow(flow[0,:,:,1])
-#
-#     image_flow_tensors = {}
-#     for k in ks:
-#         a = resize(input_image_original[0], (k, k)).astype(np.float32)
-#         b = resize(target_image_original[0], (k, k)).astype(np.float32)
-#         c = resize(flow[0], (k, k)).astype(np.float32)
-#         a = np.expand_dims(color.rgb2gray(a), 2).astype(np.float32)
-#         b = np.expand_dims(color.rgb2gray(b), 2).astype(np.float32)
-#         print(a.shape)
-#         image_flow_tensors[k] = tf.convert_to_tensor(np.concatenate((a, b, c), axis=2))
-#
-#     N = 4
-#
-#     plt.rcParams["figure.figsize"] = (8, 8)
-#     def f(do_input=True):
-#         for k in reversed(ks):
-#             plt.figure()
-#             target = model.input_hidden_layers[k] if do_input else model.output_hidden_layers[k]
-#             feature_maps = s.run(target,
-#                                  feed_dict={
-#                                      model.model.input[0]: input_image_original,
-#                                      model.model.input[1]: per_model_poseinfo
-#                                  })
-#
-#             # f, axarr = plt.subplots(8, 8, figsize=(24, 24))
-#             ix = 1
-#             ssim_values = np.zeros((N, w * h), dtype=np.float32)
-#             for i in range(h):
-#                 for j in range(w):
-#                     ax = plt.subplot(w, h, ix)
-#                     img = feature_maps[0, :, :, ix - 1]
-#                     plt.imshow(img)
-#
-#                     for c in range(N):
-#                         ssim_value = K.eval(
-#                             ssim_custom(image_flow_tensors[k][:, :, c:c + 1],
-#                                         tf.expand_dims(tf.convert_to_tensor(img), axis=2)))
-#                         ssim_values[c][ix - 1] = ssim_value
-#
-#                     ix += 1
-#             plt.show(block=False)
-#             #print(ssim_values)
-#             print(np.mean(ssim_values, axis=1))
-#
-#     f(True)
-#     f(False)
 def show_feature_map(data: DataLoader, model, test_n=5):
     input_image_original, target_image_original, poseinfo = data.get_batched_data(1, single_model=False)
     s = K.get_session()
@@ -463,6 +330,7 @@ def calculate_encoder_decoder_similarity(test_data, model, model_info=None):
     plt.imshow(output_images)
     plt.show()
     return output_images
+
 
 def calculate_encoder_decoder_similarity2(data: DataLoader, model, test_n=10):
     s = K.get_session()

@@ -5,7 +5,7 @@ from keras.layers import concatenate, Add, Multiply
 from model.model_interface import *
 from test_utils import *
 from model.attention_layers import *
-from ops import BilinearSamplingLayer
+from model.utils import BilinearSamplingLayer
 
 
 class ModelZhou16Attention(ModelInterface):

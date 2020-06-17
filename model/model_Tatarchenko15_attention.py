@@ -3,10 +3,9 @@ from keras.layers import Conv2D, Flatten, Concatenate, Activation
 from keras.layers import Reshape, Conv2DTranspose, BatchNormalization
 from keras.layers import concatenate, Add, Multiply
 from model.model_interface import *
-from utils import *
 from test_utils import *
 from model.attention_layers import *
-from ops import BilinearSamplingLayer
+from model.utils import BilinearSamplingLayer, index_to_sin_cos
 
 
 class ModelTatarchenko15Attention(ModelInterface):

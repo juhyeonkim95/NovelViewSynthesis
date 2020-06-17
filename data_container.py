@@ -6,6 +6,7 @@ import time
 import skimage.transform
 import pandas as pd
 
+
 class DataLoader:
     def __init__(self, name, image_size=256):
         path_dict = {}
