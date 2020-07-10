@@ -6,18 +6,15 @@
   "is_pose_matrix": false,
   "lr": 0.00001,
   "export_image_per": 10000,
-  "available_gpu_ids": [4],
-  "multiprocess_max": 1,
+  "available_gpu_ids": [0,1,2,3,4],
+  "multiprocess_max": 5,
   "image_size": 256,
-  "parent_folder": "model_data/pixel_generation_synthia2",
+  "parent_folder": "model_data/pixel_generation_synthia",
   "model_list": [
-    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":"cr","32":"cr","64": "cr"}}
-  ],
-  "model_list_commented": [
     {"model_type": "t", "attention_strategy":"no"},
     {"model_type": "t", "attention_strategy":"u_net"},
     {"model_type": "t", "attention_strategy":"u_attn"},
-    {"model_type": "t", "attention_strategy":"h_attn"}
-
+    {"model_type": "t", "attention_strategy":"h_attn"},
+    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":"cr","32":"cr","64": "cr"}}
   ]
 }

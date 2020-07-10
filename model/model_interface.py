@@ -32,22 +32,17 @@ class ModelInterface:
         print("Loaded model from disk")
 
     def get_predicted_image(self, sampled_input_data):
-        pass
+        source_images, pose_info = sampled_input_data
+        return self.model.predict([source_images, pose_info])
 
     def process_pose_info(self, data: DataLoader, pose_info):
         return pose_info
 
-    def train(self, data: DataLoader, test_data: DataLoader = None, **kwargs):
+    def train(self, data: DataLoader, test_data: DataLoader=None, **kwargs):
         self.build_model()
         target_loss = kwargs.get('loss', 'mae')
-        if test_data is not None:
-            self.model.compile(optimizer=Adam(lr=0.0001, beta_1=0.9), loss=target_loss, metrics=["mae", ssim_custom])
-            self.prediction_model = self.model
-        else:
-            lr = kwargs.get('lr', 0.0001)
-            self.model.compile(optimizer=Adam(lr=lr, beta_1=0.9), loss=target_loss)
-
-            #self.model.compile(optimizer=Adam(lr=0.0001, beta_1=0.9), loss=target_loss)
+        lr = kwargs.get('lr', 0.0001)
+        self.model.compile(optimizer=Adam(lr=lr, beta_1=0.9), loss=target_loss)
 
         max_iter = kwargs.get("max_iterate", 1000000)
         batch_size = kwargs.get("batch_size", 32)
@@ -55,6 +50,7 @@ class ModelInterface:
         export_image_per = kwargs.get("export_image_per", max_iter // 100)
         save_model = kwargs.get("save_model", True)
         save_model_per = kwargs.get("save_model_per", -1)
+        write_log_per = kwargs.get("write_log_per", 100)
 
         started_time_date = time.strftime("%Y%m%d_%H%M%S")
         folder_name = "%s_%s_%s" % (self.name, data.name, started_time_date)
@@ -80,7 +76,9 @@ class ModelInterface:
                 test_few_models_and_export_image(self, data, str(i), folder_name, test_n=5, single_model=False)
 
             elapsed_time = time.time() - started_time
-            if i % 100 == 0:
+
+            # Write log.
+            if i % write_log_per == 0:
                 if wr is None:
                     import csv
                     f = open('%s/log_%s.csv' % (folder_name, started_time_date), 'w', encoding='utf-8')

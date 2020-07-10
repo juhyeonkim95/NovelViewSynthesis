@@ -3,6 +3,19 @@
 This repository is the official implementation of "Novel View Synthesis with Skip Connections".
 We will soon upload jupyter notebook example for both training and evaluation.
 
+## Skip connections with different attention strategies.
+Because novel view synthesis includes severe geometric change,
+traditional U-Net structure doesn't work well.
+Here, we tested several different skip connection/attention strategies on basic two modules,
+*pixel generation* [1] and *appearance flow* [2].
+* Vanilla : No skip connection.
+* U-Net : Simple U-Net structure with skip connection.
+* Attn U-Net : Skip connection with attention mechanism from [3].
+* Cross Attn : Skip connection with cross attention between input/output hidden layers.
+* Flow Attn : Flow based hard attention. Figure is on below.
+
+![Architecture](assets/architecture_figure.PNG)
+
 ## Result on Pixel Generation
 Flow based hard attention gave the best result.
 
@@ -38,3 +51,16 @@ Reducing number of skip connection from outer layer seems to be a bit helpful.
 |            | 2   | 0.0254  | 0.9173  | 0.0453  | 0.8884  | 0.0576  | 0.7372  | 0.0930  | 0.6459  |
 |            | 1   | 0.0254  | 0.9176  | 0.0450  | 0.8887  | 0.0577  | 0.7363  | 0.0933  | 0.6459  |
 
+## Qualitative Result on Pixel Generation
+Following figure is a qualitative result for pixel generation modules with 
+different strategies.
+There wasn't big difference on appearance flow models.
+![Drag Racing](assets/figure_2_6_scene.png)
+
+
+## References
+[1] Tatarchenko, Maxim, Alexey Dosovitskiy, and Thomas Brox. "Multi-view 3d models from single images with a convolutional network." European Conference on Computer Vision. Springer, Cham, 2016.
+
+[2] Zhou, Tinghui, et al. "View synthesis by appearance flow." European conference on computer vision. Springer, Cham, 2016.
+
+[3] Oktay, Ozan, et al. "Attention u-net: Learning where to look for the pancreas." arXiv preprint arXiv:1804.03999 (2018).
