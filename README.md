@@ -1,7 +1,9 @@
 # Novel View Synthesis with Skip Connections
 
 This repository is the official implementation of "Novel View Synthesis with Skip Connections".
-We will soon upload jupyter notebook example for both training and evaluation.
+
+## Requirements
+You need Tensorflow 1.14 and Keras 2.2.4.
 
 ## Skip connections with different attention strategies.
 Because novel view synthesis includes severe geometric change,
