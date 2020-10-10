@@ -1,14 +1,21 @@
 # Novel View Synthesis with Skip Connections
 
-This repository is the official implementation of "Novel View Synthesis with Skip Connections".
+This repository is the official implementation of "Novel View Synthesis with Skip Connections" (ICIP 2020).
 
 ## Requirements
 You need Tensorflow 1.14 and Keras 2.2.4.
 
 ## Dataset
 The dataset is processed from [4] ([github](https://github.com/shaohua0116/Multiview2Novelview)).
-Our processed dataset can be downloaded from here. (6GB)
+Our processed dataset can be downloaded from here. (6GB, will be uploaded)
 After unzip, put all numpy files into `numpy_data` folder.
+
+## Training and testing
+We used multiprocessing to train/test multiple models simultaneously, 
+but still you can run the code with a single process.
+Please refer to `notebook example.ipynb` for the usage.
+Also check `configs\config_examples` folder for the train/test configuration.
+Explanation for the configuration can be found in [here](configs/README.md).
 
 ## Skip connections with different attention strategies.
 Because novel view synthesis includes severe geometric change,
