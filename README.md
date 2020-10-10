@@ -1,6 +1,6 @@
 # Novel View Synthesis with Skip Connections
 
-This repository is the official implementation of "Novel View Synthesis with Skip Connections" (ICIP 2020).
+This repository is the official implementation of "Novel View Synthesis with Skip Connections" (ICIP 2020 accepted).
 
 ## Requirements
 You need Tensorflow 1.14 and Keras 2.2.4.
@@ -17,7 +17,7 @@ Please refer to `notebook example.ipynb` for the usage.
 Also check `configs\config_examples` folder for the train/test configuration.
 Explanation for the configuration can be found in [here](configs/README.md).
 
-## Skip connections with different attention strategies.
+## Skip Connections with Different Attention Strategies
 Because novel view synthesis includes severe geometric change,
 traditional U-Net structure doesn't work well.
 Here, we tested several different skip connection/attention strategies on basic two modules,
