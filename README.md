@@ -8,7 +8,7 @@ You need Tensorflow 1.14 and Keras 2.2.4.
 ## Dataset
 The dataset is processed from [4] ([github](https://github.com/shaohua0116/Multiview2Novelview)).
 Our processed dataset can be downloaded from here. (6GB)
-After unzip, put all numpy files in `numpy_data` folder.
+After unzip, put all numpy files into `numpy_data` folder.
 
 ## Skip connections with different attention strategies.
 Because novel view synthesis includes severe geometric change,
