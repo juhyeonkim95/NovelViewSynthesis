@@ -107,65 +107,6 @@ class ModelZhou16Attention(ModelInterface):
                 self.decoder_rearranged_features[current_image_size] = x_e_rearranged
                 d = x_d
 
-            # if current_image_size < self.image_size:
-            #     if current_attention_strategy == 'u_net':
-            #         self.decoder_original_features[current_image_size] = d
-            #         self.decoder_rearranged_features[current_image_size] = self.encoder_original_features[current_image_size]
-            #         d = Concatenate()([self.encoder_original_features[current_image_size], d])
-            #     elif current_attention_strategy == 'cr_attn'or current_attention_strategy == 'cr':
-            #         c = AttentionLayer(input_h=self.encoder_original_features[current_image_size], mix_concat=self.mix_concat, k=self.k,
-            #                            u_value=self.u_value)
-            #         custom_attn_layers[current_image_size] = c
-            #         d = c(d)
-            #     elif current_attention_strategy == 's_attn':
-            #         c = AttentionLayer(input_h=d, mix_concat=self.mix_concat, k=self.k)
-            #         custom_attn_layers[current_image_size] = c
-            #         d = c(d)
-            #     elif current_attention_strategy == 'h_attn' or current_attention_strategy == 'h':
-            #         pred_feature = BilinearSamplingLayer(current_image_size)([self.encoder_original_features[current_image_size], pred_flow])
-            #         self.decoder_original_features[current_image_size] = d
-            #         self.decoder_rearranged_features[current_image_size] = pred_feature
-            #         d = Concatenate()([pred_feature, d])
-            #     elif current_attention_strategy=='u_attn':
-            #         channels = K.int_shape(d)[3] // 2
-            #         print("Channels:", channels)
-            #
-            #         g = Conv2D(channels, kernel_size=1, strides=1, padding='same')(d)
-            #         g = BatchNormalization()(g)
-            #         x_original = self.encoder_original_features[current_image_size]
-            #         x = Conv2D(channels, kernel_size=1, strides=1, padding='same')(x_original)
-            #         x = BatchNormalization()(x)
-            #
-            #         psi = ReLU()(Add()([g, x]))
-            #         psi = Conv2D(1, kernel_size=1, strides=1, padding='same')(psi)
-            #         psi = BatchNormalization()(psi)
-            #         psi = Activation('sigmoid')(psi)
-            #
-            #         y = Multiply()([x_original, psi])
-            #
-            #         self.decoder_original_features[current_image_size] = d
-            #         self.decoder_rearranged_features[current_image_size] = y
-            #
-            #         d = Concatenate()([y, d])
-            #     elif current_attention_strategy == 'hu_attn':
-            #         pred_feature = BilinearSamplingLayer(current_image_size)([self.encoder_original_features[current_image_size], pred_flow])
-            #         channels = K.int_shape(d)[3] // 2
-            #         print("Channels:", channels)
-            #         g = Conv2D(channels, kernel_size=1, strides=1, padding='same')(d)
-            #         g = BatchNormalization()(g)
-            #         x_original = pred_feature
-            #         x = Conv2D(channels, kernel_size=1, strides=1, padding='same')(x_original)
-            #         x = BatchNormalization()(x)
-            #
-            #         psi = ReLU()(Add()([g, x]))
-            #         psi = Conv2D(1, kernel_size=1, strides=1, padding='same')(psi)
-            #         psi = BatchNormalization()(psi)
-            #         psi = Activation('sigmoid')(psi)
-            #
-            #         y = Multiply()([x_original, psi])
-            #         d = Concatenate()([y, d])
-            #     self.output_hidden_layers[current_image_size] = d
-
         # final flow
         pred_flow = Conv2DTranspose(2, kernel_size=(3, 3), strides=(1, 1), padding='same')(d)
         self.pred_flow = pred_flow

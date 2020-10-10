@@ -5,6 +5,11 @@ This repository is the official implementation of "Novel View Synthesis with Ski
 ## Requirements
 You need Tensorflow 1.14 and Keras 2.2.4.
 
+## Dataset
+The dataset is processed from [4] ([github](https://github.com/shaohua0116/Multiview2Novelview)).
+Our processed dataset can be downloaded from here. (6GB)
+After unzip, put all numpy files in `numpy_data` folder.
+
 ## Skip connections with different attention strategies.
 Because novel view synthesis includes severe geometric change,
 traditional U-Net structure doesn't work well.
@@ -66,3 +71,5 @@ There wasn't big difference on appearance flow models.
 [2] Zhou, Tinghui, et al. "View synthesis by appearance flow." European conference on computer vision. Springer, Cham, 2016.
 
 [3] Oktay, Ozan, et al. "Attention u-net: Learning where to look for the pancreas." arXiv preprint arXiv:1804.03999 (2018).
+
+[4] Sun, Shao-Hua, et al. "Multi-view to novel view: Synthesizing novel views with self-learned confidence." Proceedings of the European Conference on Computer Vision (ECCV). 2018.

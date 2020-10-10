@@ -2,7 +2,7 @@ from keras.models import Model
 import os
 from test_utils import *
 from keras.optimizers import Adam
-
+import time
 
 class ModelInterface:
     def __init__(self, name, image_size):
@@ -85,8 +85,8 @@ class ModelInterface:
                     wr = csv.writer(f)
                     wr.writerow(["epoch"] + self.get_model().metrics_names + ["elapsed_time"])
 
-                wr.writerow([i] + (loss_info if type(loss_info) is list else [loss_info]) + [
-                    time.strftime("%H:%M:%S", time.gmtime(elapsed_time))])
+                wr.writerow([i] + (loss_info if type(loss_info) is list else [loss_info]) +
+                            [time.strftime("%H:%M:%S", time.gmtime(elapsed_time))])
                 f.flush()
 
             if save_model_per != -1 and save_model and i % save_model_per == 0:

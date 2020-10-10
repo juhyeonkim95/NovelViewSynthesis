@@ -157,21 +157,24 @@ def test_single_model(x):
         test_method = kwargs.get("test_method", "exhaustive")
         mae_all = None
         ssim_all = None
+
+        # scene
         if dataset.name == 'kitti' or dataset.name == 'synthia':
             if test_method == 'exhaustive':
                 mae, ssim, mae_all, ssim_all = test_for_all_scenes(dataset, model, batch_size=batch_size)
             else:
                 mae, ssim = test_for_random_scene(dataset, model, N=kwargs.get("max_iter", 20000), batch_size=batch_size)
+        # object
         else:
             if test_method == 'exhaustive':
-                mae, ssim, mae_all, ssim_all = test_for_all_models_thorough_per_model2(dataset, model,  batch_size=batch_size)
+                mae, ssim, mae_all, ssim_all = test_for_all_objects(dataset, model,  batch_size=batch_size)
             else:
                 mae, ssim = test_for_random_scene(dataset, model, N=kwargs.get("max_iter", 20000), batch_size=batch_size)
 
         return mae, ssim, mae_all, ssim_all, model.name
     except Exception as ex:
         print(ex)
-        return 0, 0, model.name
+        return 0, 0, None, None, model.name
 
 
 def test_all_using_multiprocessing(config_file_name):
@@ -322,7 +325,6 @@ def test_and_export_feature_map_for_single_model(x):
     ith_model_info = kwargs["model_list"][i]
     model = build_model_from_dictionary(dataset, **ith_model_info)
 
-    #try:
     print("model constructed!")
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     initialize_tensorflow()
@@ -335,13 +337,10 @@ def test_and_export_feature_map_for_single_model(x):
 
     poseinfo_processed = model.process_pose_info(dataset, current_test_poses)
     current_test_data = (current_test_input_images, current_test_target_images, poseinfo_processed)
-    feature_map = calculate_encoder_decoder_similarity(current_test_data, model)
+    feature_map = show_feature_map(current_test_data, model)
     started_time_date = time.strftime("%Y%m%d_%H%M%S")
     print(feature_map.shape)
     save_pred_images(feature_map, "%s/%s_%s" % (result_export_folder, model.name, started_time_date))
-    # except Exception as ex:
-    #     print(ex)
-    #     return
 
 
 def test_and_export_feature_map_for_models_using_multiprocessing(config_file_name):
@@ -359,7 +358,6 @@ def test_and_export_feature_map_for_models_using_multiprocessing(config_file_nam
     k = config.get("multiprocess_max", model_counts)
 
     target_scene_infos = config.get("target_scene_infos", None)
-    index_info = None
 
     if target_scene_infos is None:
         test_data, index_info = dataset.get_batched_data(1, single_model=False, return_info=True)

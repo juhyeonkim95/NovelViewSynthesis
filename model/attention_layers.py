@@ -7,6 +7,8 @@ from keras.constraints import MinMaxNorm
 This code is slightly modified SAGAN code from
 https://github.com/kiyohiro8/SelfAttentionGAN/blob/master/SelfAttentionLayer.py
 '''
+
+
 class AttentionLayer(Layer):
     def __init__(self, input_h, mix_concat='concat', k=8, **kwargs):
         '''
