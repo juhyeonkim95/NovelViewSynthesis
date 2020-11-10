@@ -43,9 +43,9 @@ Flow based hard attention gave the best result.
 | Flow Attn  | 0.0259  | 0.9091  | 0.0499  | 0.8725  | 0.0512  | 0.7597  | 0.0776  | 0.6939  |
 
 ## Result on Appearance Flow
-Reducing number of skip connection from outer layer seems to be a bit helpful.
+Reducing number of skip connection from outer layer ($$N_S$$) seems to be a bit helpful.
 
-| Method     | N_s | Car     |         | Chair   |         | Synthia |         | KITTI   |         |
+| Method     | $$N_s$$ | Car     |         | Chair   |         | Synthia |         | KITTI   |         |
 |------------|-----|---------|---------|---------|---------|---------|---------|---------|---------|
 |            |     | L1      | SSIM    | L1      | SSIM    | L1      | SSIM    | L1      | SSIM    |
 | Vanilla    | -   | 0.0256  | 0.9168  | 0.0448  | 0.8898  | 0.0580  | 0.7372  | 0.0931  | 0.6470  |

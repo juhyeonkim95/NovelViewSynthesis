@@ -1,0 +1,24 @@
+{
+  "dataset": "synthia",
+  "dataset_format": "npy",
+  "is_pose_matrix": false,
+  "available_gpu_ids": [1, 2],
+  "multiprocess_max": 2,
+  "image_size": 256,
+  "parent_folder": "model_data/pixel_generation_synthia",
+  "result_export_folder": "test_result_images/pixel_generation_synthia",
+  "target_scene_n" : 5,
+  "target_scene_infos" : [
+    ["SYNTHIA-SEQS-01-SPRING",148,153],
+    ["SYNTHIA-SEQS-02-SUMMER",358,364],
+    ["SYNTHIA-SEQS-01-FALL",797,803],
+    ["SYNTHIA-SEQS-06-SUMMER",582,587]
+  ],
+  "model_list": [
+    {"model_type": "t", "attention_strategy":"no"},
+    {"model_type": "t", "attention_strategy":"u_net"},
+    {"model_type": "t", "attention_strategy":"u_attn"},
+    {"model_type": "t", "attention_strategy":"mixed","attention_strategy_details":{"8":"cr","16":"cr","32":"cr","64": "cr"}},
+    {"model_type": "t", "attention_strategy":"h_attn"}
+  ]
+}
