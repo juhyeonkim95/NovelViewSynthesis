@@ -41,11 +41,11 @@ class ModelInterface:
     def train(self, data: DataLoader, test_data: DataLoader=None, **kwargs):
         self.build_model()
         target_loss = kwargs.get('loss', 'mae')
-        lr = kwargs.get('lr', 0.0001)
+        lr = kwargs.get('lr', 5e-5)
         self.model.compile(optimizer=Adam(lr=lr, beta_1=0.9), loss=target_loss)
 
         max_iter = kwargs.get("max_iterate", 1000000)
-        batch_size = kwargs.get("batch_size", 32)
+        batch_size = kwargs.get("batch_size", 16)
         single_model = kwargs.get("single_model", False)
         export_image_per = kwargs.get("export_image_per", max_iter // 100)
         save_model = kwargs.get("save_model", True)
@@ -91,7 +91,13 @@ class ModelInterface:
 
             if save_model_per != -1 and save_model and i % save_model_per == 0:
                 if test_data is not None:
-                    mae, ssim = test_for_all_models_thorough_per_model(test_data, self)
+                    # scene
+                    if data.name == 'kitti' or data.name == 'synthia':
+                        mae, ssim, mae_all, ssim_all = test_for_all_scenes(test_data, self, batch_size=batch_size)
+                    # object
+                    else:
+                        mae, ssim, mae_all, ssim_all = test_for_all_objects(test_data, self, batch_size=batch_size)
+
                     if f_test is None:
                         f_test = open('%s/test_log_%s.txt' % (folder_name, started_time_date), 'w')
                         f_test.write('epoch\tmae\tssim\n')

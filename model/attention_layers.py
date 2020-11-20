@@ -12,7 +12,7 @@ https://github.com/kiyohiro8/SelfAttentionGAN/blob/master/SelfAttentionLayer.py
 class AttentionLayer(Layer):
     def __init__(self, input_h, mix_concat='concat', k=8, **kwargs):
         '''
-        This is a
+        This is an attention layer implementation based on self attention GAN.
         :param input_h: Input hidden layer
         :param mix_concat: how to append attention applied layer. Only concat is used.
         :param k: parameter for channel size. Smaller k means more channels.

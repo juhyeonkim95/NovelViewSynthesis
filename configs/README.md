@@ -9,6 +9,11 @@ Batch size. Default is 16.
 ### dataset
 Target dataset. Currently only 'car', 'chair', 'kitti' and 'synthia'
 is allowed.
+### dataset_format
+(Not used) Only `npy` format is allowed.
+### is_pose_matrix
+If this is true, use pose matrix as pose input. Default is false.
+Only used for scene data.
 ### lr
 Learning rate. Default is 5e-5.
 ### export_image_per
@@ -17,10 +22,10 @@ How frequently export image during training. Default is max_iterate / 10.
 If you have multiple gpus, use multiple gpu ids, e.g. [0,1,2,3].
 If you have only single gpu, set this value to [0].
 ### multiprocess_max
-Maximum number of multiprocessing. This shouldn't be same with 
+Maximum number of multiprocessing. This is not needed be same with 
 `available_gpu_ids`. Even you have only single gpu, you can train
 multiple models at once. 
-But be careful not to overflow the memory.
+But be careful not to cause overflow.
 ### image_size
 Image size. Default is 256.
 ### parent_folder

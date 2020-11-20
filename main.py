@@ -80,12 +80,10 @@ def load_dataset_from_config(**kwargs):
     dataset_name = kwargs["dataset"]
     dataset_format = kwargs["dataset_format"]
     image_size = kwargs.get("image_size", 256)
+    is_pose_matrix = kwargs.get("is_pose_matrix", False)
     train_or_test = kwargs.get("train_or_test", "train")
     if dataset_name == "kitti" or dataset_name == "synthia":
-        if dataset_format == "npy":
-            return SceneDataLoaderNumpy(dataset_name, image_size=image_size)
-        else:
-            return SceneDataLoader(dataset_name, image_size=image_size)
+        return SceneDataLoaderNumpy(dataset_name, use_pose_matrix=is_pose_matrix, image_size=image_size)
     elif dataset_name == "car" or dataset_name == "chair":
         return ObjectDataLoaderNumpy(dataset_name, image_size=image_size, train_or_test=train_or_test)
 

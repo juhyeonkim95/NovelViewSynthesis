@@ -4,7 +4,7 @@
   "dataset": "synthia",
   "dataset_format": "npy",
   "is_pose_matrix": false,
-  "lr": 0.00001,
+  "lr": 0.00005,
   "export_image_per": 10000,
   "available_gpu_ids": [0,1,2,3,4],
   "multiprocess_max": 5,

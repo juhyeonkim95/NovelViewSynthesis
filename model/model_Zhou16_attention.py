@@ -17,6 +17,7 @@ class ModelZhou16Attention(ModelInterface):
                  additional_name=None,
                  pose_input_size=18):
         super().__init__("zhou16attention", image_size)
+        # normalizing strategy is from the original paper.
         self.pixel_normalizer = lambda x: (x - 0.5) * 2
         self.pixel_normalizer_reverse = lambda x: x / 2 + 0.5
         self.prediction_model = None

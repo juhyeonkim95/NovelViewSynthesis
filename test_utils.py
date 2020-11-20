@@ -1,5 +1,5 @@
 import numpy as np
-from data_container import DataLoader, SceneDataLoader, ObjectDataLoaderNumpy
+from data_container import DataLoader, SceneDataLoaderNumpy, ObjectDataLoaderNumpy
 from PIL import Image
 import keras.backend as K
 import tensorflow as tf
@@ -42,7 +42,7 @@ def mae_custom(y_true, y_pred):
     return K.mean(K.abs(y_true - y_pred))
 
 
-def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
+def test_for_random_scene(data: SceneDataLoaderNumpy, model, N=20000, batch_size=32):
     mae = 0
     ssim = 0
     count = 0
@@ -59,7 +59,7 @@ def test_for_random_scene(data: SceneDataLoader, model, N=20000, batch_size=32):
     return mae, ssim
 
 
-def test_for_all_scenes(data: SceneDataLoader, model, batch_size=16):
+def test_for_all_scenes(data: SceneDataLoaderNumpy, model, batch_size=16):
     scene_N = len(data.scene_list)
     difference_N = 2 * data.max_frame_difference + 1
     absolute_errors = np.zeros((difference_N, ), dtype=np.float32)
@@ -132,67 +132,6 @@ def test_for_all_objects(data: ObjectDataLoaderNumpy, model, batch_size=50):
 
 from matplotlib import pyplot as plt
 from skimage.transform import resize
-
-
-def show_feature_map(data: DataLoader, model, test_n=5):
-    input_image_original, target_image_original, poseinfo = data.get_batched_data(1, single_model=False)
-    s = K.get_session()
-    ks = [16, 32, 64, 128]
-    w = 4
-    h = 4
-
-    plt.figure()
-    plt.subplot(1, 3, 1)
-    plt.imshow(input_image_original[0])
-    plt.subplot(1, 3, 2)
-    plt.imshow(target_image_original[0])
-    plt.subplot(1, 3, 3)
-    per_model_poseinfo = model.process_pose_info(data, poseinfo)
-
-    pred_images = model.get_predicted_image((input_image_original, per_model_poseinfo))
-    plt.imshow(pred_images[0])
-
-    per_model_poseinfo = model.process_pose_info(data, poseinfo)
-    flow = s.run(model.pred_flow,
-                 feed_dict={
-                     model.model.input[0]: input_image_original,
-                     model.model.input[1]: per_model_poseinfo
-                 })
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.imshow(flow[0,:,:,0])
-    plt.subplot(1, 2, 2)
-    plt.imshow(flow[0,:,:,1])
-
-    plt.rcParams["figure.figsize"] = (8, 8)
-    def f(type = 1):
-        for k in reversed(ks):
-            plt.figure()
-            if type == 1:
-                target = model.encoder_original_features[k]
-            elif type == 2:
-                target = model.decoder_original_features[k]
-            else:
-                target = model.decoder_rearranged_features[k]
-
-            feature_maps = s.run(target,
-                                 feed_dict={
-                                     model.model.input[0]: input_image_original,
-                                     model.model.input[1]: per_model_poseinfo
-                                 })
-
-            # f, axarr = plt.subplots(8, 8, figsize=(24, 24))
-            ix = 1
-            for i in range(h):
-                for j in range(w):
-                    ax = plt.subplot(w, h, ix)
-                    img = feature_maps[0, :, :, ix - 1]
-                    plt.imshow(img)
-                    ix += 1
-
-    f(1)
-    f(2)
-    f(3)
 
 
 def put_image_in(large_image, image, x, y, size):

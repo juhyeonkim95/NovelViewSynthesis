@@ -9,6 +9,8 @@ You need Tensorflow 1.14 and Keras 2.2.4.
 The dataset is processed from [4] ([github](https://github.com/shaohua0116/Multiview2Novelview)).
 Our processed smaller dataset can be downloaded from [here](https://drive.google.com/file/d/17Sxuw-Je37xIgw0AC2ZtmugGAhEEngzP/view?usp=sharing). (6GB)
 After unzip, put all numpy files into `numpy_data` folder.
+(Added) Please also download scene info data from
+[here](https://drive.google.com/file/d/1SoXGoxuxccUYmsQw9DYBfOSnhl_95ZX6/view?usp=sharing) and put them in same folder.
 
 ## Training and Testing
 We used multiprocessing to train/test multiple models simultaneously, 

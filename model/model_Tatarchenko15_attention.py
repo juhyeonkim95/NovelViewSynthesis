@@ -19,6 +19,7 @@ class ModelTatarchenko15Attention(ModelInterface):
                  **kwargs):
         super().__init__("tatarchenko15attention", image_size)
 
+        # normalizing strategy is from the original paper.
         self.pixel_normalizer = lambda x: (x - 0.5) * 1.5
         self.pixel_normalizer_reverse = lambda x: x / 1.5 + 0.5
         self.prediction_model = None

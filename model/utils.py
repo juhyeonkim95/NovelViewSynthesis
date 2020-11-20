@@ -41,12 +41,12 @@ def get_modified_decoder_layer(x_d0, x_e, current_attention_strategy, current_im
     if current_attention_strategy == 'u_net':
         x_d = Concatenate()([x_e, x_d0])
         x_e_rearranged = x_e
-    # (2) Cross Attention
+    # (2) Cross Attention (attention between encoder & decoder)
     elif current_attention_strategy == 'cr_attn' or current_attention_strategy == 'cr':
         c = AttentionLayer(input_h=x_e, mix_concat="concat", k=2)
         x_d = c(x_d0)
         x_e_rearranged = c.o
-    # (Not used) Self Attention
+    # (Not used) Self Attention (attention between decoder itself)
     elif current_attention_strategy == 's_attn':
         c = AttentionLayer(input_h=x_d0, mix_concat="concat", k=2)
         x_d = c(x_d0)
